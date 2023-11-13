@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage("Install Dependencies"){
             steps{
-                sh 'npm cache clean --force && rm -rf node_modules && rm package-lock.json && npm install'
+                sh 'npm install'
             }
         }
 
@@ -18,21 +18,36 @@ pipeline {
                 sh 'npm run test-jenkins'
             }
         }
-        stage("Building Image"){
+        stage("Building Image") {
             steps {
                 script {
-                    dockerImage = docker.build imageName
+                    dockerImage = docker.build(imageName)
+                    echo "Built Image: ${dockerImage.id}"
                 }
             }
         }
-        stage("Deploy Image"){
+
+        stage("Deploy Image") {
             steps {
                 script {
-                    docker.withRegistry("https://registry.hub.docker.com", 'dockerhub-creds'){
-                        dockerImage.push("${env.BUILD_NUMBER}")
+                    def imageTag = "${env.BUILD_NUMBER}"
+                    docker.withRegistry("https://registry.hub.docker.com", 'dockerhub-creds') {
+                        dockerImage.push(imageTag)
                     }
+                    echo "Image deployed: ${imageName}:${imageTag}"
+                    echo "URL: https://registry.hub.docker.com/r/${imageName}:${imageTag}"
                 }
             }
         }
+        stage("Get Container IP") {
+            steps {
+                script {
+                    def containerId = sh(script: "docker ps -q -f ancestor=${imageName}", returnStdout: true).trim()
+                    def containerIp = sh(script: "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${containerId}", returnStdout: true).trim()
+                    echo "Container IP: ${containerIp}"
+                }
+            }
+        }
+
     }
 }
