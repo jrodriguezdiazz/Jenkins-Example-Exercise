@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  jenkins:
+    image: jrodriguezdiazz/jenkins-example-exercise
+    container_name: jenkins_container
+    ports:
+      - '8082:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - jenkins_home:/var/jenkins_home
+volumes:
+  jenkins_home:
