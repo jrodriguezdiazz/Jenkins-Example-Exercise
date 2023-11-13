@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage("Install Dependencies"){
             steps{
-                sh 'npm install'
+                sh 'npm cache clean --force && rm -rf node_modules && rm package-lock.json && npm install'
             }
         }
 
