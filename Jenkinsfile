@@ -43,11 +43,14 @@ pipeline {
             steps {
                 script {
                     def containerId = sh(script: "docker ps -q -f ancestor=${imageName}", returnStdout: true).trim()
-                    def containerIp = sh(script: "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${containerId}", returnStdout: true).trim()
-                    echo "Container IP: ${containerIp}"
+                    if (containerId) {
+                        def containerIp = sh(script: "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${containerId}", returnStdout: true).trim()
+                        echo "Container IP: ${containerIp}"
+                    } else {
+                        echo "No running containers found for image ${imageName}"
+                    }
                 }
             }
         }
-
     }
 }
