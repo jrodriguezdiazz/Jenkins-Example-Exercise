@@ -2,8 +2,8 @@ pipeline {
     agent any
     tools { nodejs "node"}
     environment {
-        imageName = "techwithgio/react-app"
-        registryCredential = 'techwithgio'
+        imageName = "jrodriguezdiazz/jenkins-example-exercise"
+        registryCredential = 'jrodriguezdiazz'
         dockerImage = ''
     }
     stages {
